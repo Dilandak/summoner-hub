@@ -1,0 +1,14 @@
+{
+  "buildCommand": "cd apps/web && pnpm run build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "pnpm install",
+  "functions": {
+    "apps/api/src/index.ts": {
+      "runtime": "@vercel/node"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/apps/api/src/index.ts" },
+    { "source": "/(.*)",     "destination": "/index.html" }
+  ]
+}

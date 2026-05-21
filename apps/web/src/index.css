@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  
+  html { scroll-behavior: smooth; }
+  
+  body {
+    background: #010A13;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(11, 196, 227, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(200, 155, 60, 0.06) 0%, transparent 40%);
+    min-height: 100vh;
+  }
+
+  /* Scrollbar temática */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #010A13; }
+  ::-webkit-scrollbar-thumb { background: #C89B3C55; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #C89B3C99; }
+}
+
+@layer components {
+  /* Borde dorado hexagonal decorativo */
+  .gold-border {
+    border: 1px solid;
+    border-image: linear-gradient(135deg, #785A28, #C89B3C, #F0E6D3, #C89B3C, #785A28) 1;
+  }
+
+  /* Card del rift */
+  .rift-card {
+    @apply bg-rift-panel border border-rift-border rounded-lg relative overflow-hidden;
+    background: linear-gradient(135deg, #111827 0%, #0D1B2A 100%);
+  }
+  .rift-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #785A2855, #C89B3C33, #785A2855);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Texto dorado con brillo */
+  .gold-text {
+    @apply text-rift-gold;
+    text-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
+  }
+
+  /* Badge de rango */
+  .rank-badge {
+    @apply font-display font-bold tracking-widest uppercase text-xs px-3 py-1 rounded;
+  }
+
+  /* Línea divisoria dorada */
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #C89B3C55, #C89B3C, #C89B3C55, transparent);
+  }
+}
+
+/* Animación de partícula de fondo */
+@keyframes particle {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+  50%       { opacity: 0.6; transform: translateY(-30px) scale(1.2); }
+}
