@@ -71,7 +71,7 @@ export function ProfileHero() {
         {/* Info */}
         <div ref={textRef} className="flex-1 text-center md:text-left space-y-3">
           <h1 className="font-display text-4xl md:text-5xl font-bold gold-text tracking-wide">
-            {data?.summoner.name ?? 'Dilandak'}
+            {data ? `${data.account.gameName}#${data.account.tagLine}` : 'Dilandak#Dak'}
           </h1>
 
           {soloQ ? (

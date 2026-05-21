@@ -36,7 +36,7 @@ export function Navbar() {
         {/* Summoner name tag */}
         <div className="flex items-center gap-2 border border-rift-gold/20 rounded-full px-3 py-1">
           <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="font-mono text-xs text-rift-gold">Dilandak</span>
+          <span className="font-mono text-xs text-rift-gold">Dilandak #Dak</span>
         </div>
       </div>
     </nav>
