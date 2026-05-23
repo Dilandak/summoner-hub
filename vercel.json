@@ -1,14 +1,20 @@
 {
-  "buildCommand": "cd apps/web && pnpm run build",
-  "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @summoner-hub/web build",
+  "outputDirectory": "apps/web/dist",
   "functions": {
     "apps/api/src/index.ts": {
       "runtime": "@vercel/node"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/apps/api/src/index.ts" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/apps/api/src/index.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
