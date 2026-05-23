@@ -11,8 +11,6 @@ import { useSummoner } from '@/hooks/useSummoner'
 import { useProfileInsights } from '@/hooks/useProfileInsights'
 import { useMastery } from '@/hooks/useMastery'
 import { useMatches } from '@/hooks/useMatches'
-import { useChampionStats } from '@/hooks/useChampionStats'
-import { useRecentPlayers } from '@/hooks/useRecentPlayers'
 
 export default function App() {
   const [bootFinished, setBootFinished] = useState(false)
@@ -21,12 +19,11 @@ export default function App() {
   const summonerQuery = useSummoner()
   const puuid = summonerQuery.data?.account.puuid
 
-  // Estas queries son las que necesita el Dashboard para verse completo.
-  const insightsQuery = useProfileInsights(puuid, 30)
+  // Boot inicial: solo lo esencial para que el dashboard no se vea vacío.
+  // NO esperamos championStats ni recentPlayers aquí porque son pesados.
+  const insightsQuery = useProfileInsights(puuid, 10)
   const masteryQuery = useMastery(puuid, 6)
   const matchesQuery = useMatches(puuid, 10)
-  const championStatsQuery = useChampionStats(puuid, 30)
-  const recentPlayersQuery = useRecentPlayers(puuid, 80)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,19 +33,16 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [])
 
-  const isDashboardBootLoading = useMemo(() => {
+  const isBootLoading = useMemo(() => {
     if (bootFinished) return false
 
     if (summonerQuery.isPending) return true
-
     if (!puuid) return true
 
     return (
       insightsQuery.isPending ||
       masteryQuery.isPending ||
-      matchesQuery.isPending ||
-      championStatsQuery.isPending ||
-      recentPlayersQuery.isPending
+      matchesQuery.isPending
     )
   }, [
     bootFinished,
@@ -57,25 +51,21 @@ export default function App() {
     insightsQuery.isPending,
     masteryQuery.isPending,
     matchesQuery.isPending,
-    championStatsQuery.isPending,
-    recentPlayersQuery.isPending,
   ])
 
   useEffect(() => {
     if (bootFinished) return
 
-    if (minimumTimeDone && !isDashboardBootLoading) {
+    if (minimumTimeDone && !isBootLoading) {
       setBootFinished(true)
     }
-  }, [bootFinished, minimumTimeDone, isDashboardBootLoading])
+  }, [bootFinished, minimumTimeDone, isBootLoading])
 
   const loadingMessage = useMemo(() => {
     if (summonerQuery.isPending) return 'Conectando con Riot API...'
     if (insightsQuery.isPending) return 'Analizando rendimiento reciente...'
     if (masteryQuery.isPending) return 'Consultando maestrías...'
     if (matchesQuery.isPending) return 'Cargando historial de partidas...'
-    if (championStatsQuery.isPending) return 'Calculando champion pool...'
-    if (recentPlayersQuery.isPending) return 'Detectando dúos y compañeros frecuentes...'
 
     return 'Preparando dashboard...'
   }, [
@@ -83,8 +73,6 @@ export default function App() {
     insightsQuery.isPending,
     masteryQuery.isPending,
     matchesQuery.isPending,
-    championStatsQuery.isPending,
-    recentPlayersQuery.isPending,
   ])
 
   if (!bootFinished) {

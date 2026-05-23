@@ -36,6 +36,13 @@ app.get('/health', c =>
   })
 )
 
+app.get('/api/health', c =>
+  c.json({
+    status: 'ok',
+    ts: new Date().toISOString(),
+  })
+)
+
 app.route('/api/summoner', summonerRoute)
 app.route('/api/mastery', masteryRoute)
 app.route('/api/matches', matchesRoute)
