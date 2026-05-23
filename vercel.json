@@ -2,11 +2,6 @@
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter @summoner-hub/web build",
   "outputDirectory": "apps/web/dist",
-  "functions": {
-    "apps/api/src/index.ts": {
-      "runtime": "@vercel/node"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
