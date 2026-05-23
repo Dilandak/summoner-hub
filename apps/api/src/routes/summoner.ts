@@ -9,6 +9,12 @@ type RiotAccount = {
   tagLine: string
 }
 
+type SummonerResponse = {
+  account: RiotAccount
+  summoner: Summoner
+  ranked: RankedEntry[]
+}
+
 const app = new Hono()
 
 app.get('/', async (c) => {
@@ -17,19 +23,17 @@ app.get('/', async (c) => {
 
   if (!gameName || !tagLine) {
     return c.json(
-      { error: 'Faltan gameName y tagLine' },
+      {
+        error: 'Faltan gameName y tagLine',
+        example: '/api/summoner?gameName=Dilandak&tagLine=Dak',
+      },
       400
     )
   }
 
   const cacheKey = `summoner:${gameName.toLowerCase()}:${tagLine.toLowerCase()}`
 
-  const cached = cacheGet<{
-    account: RiotAccount
-    summoner: Summoner
-    ranked: RankedEntry[]
-  }>(cacheKey)
-
+  const cached = cacheGet<SummonerResponse>(cacheKey)
   if (cached) return c.json({ data: cached, cached: true })
 
   try {
@@ -42,10 +46,10 @@ app.get('/', async (c) => {
     )
 
     const ranked = await riotGet<RankedEntry[]>(
-      riotUrl.ranked(summoner.id)
+      riotUrl.rankedByPuuid(account.puuid)
     )
 
-    const result = {
+    const result: SummonerResponse = {
       account,
       summoner,
       ranked,
@@ -55,11 +59,19 @@ app.get('/', async (c) => {
 
     return c.json({ data: result, cached: false })
   } catch (err: unknown) {
-    const status = (err as { response?: { status: number } })?.response?.status || 500
-    console.error('Error fetching summoner:', err)
+    const status = (err as { response?: { status?: number } })?.response?.status || 500
+
+    console.error('Error fetching summoner route:', {
+      status,
+      gameName,
+      tagLine,
+    })
 
     return c.json(
-      { error: 'Error fetching summoner' },
+      {
+        error: 'Error fetching summoner',
+        status,
+      },
       status as 400
     )
   }

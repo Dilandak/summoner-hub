@@ -1,26 +1,49 @@
 import { Hono } from 'hono'
 import { riotGet, riotUrl } from '../lib/riot.js'
 import { cacheGet, cacheSet } from '../lib/cache.js'
+import { getMatchesByIds } from '../lib/match-service.js'
 import type { MatchSummary } from '@summoner-hub/types'
 
 const app = new Hono()
 
-// GET /api/matches/:puuid?count=10
 app.get('/:puuid', async (c) => {
-  const puuid    = c.req.param('puuid')
-  const count    = Number(c.req.query('count') || 10)
+  const puuid = c.req.param('puuid')
+  const countParam = Number(c.req.query('count') || 10)
+  const count = Math.min(Math.max(countParam, 5), 50)
+
   const cacheKey = `matches:${puuid}:${count}`
 
   const cached = cacheGet<MatchSummary[]>(cacheKey)
   if (cached) return c.json({ data: cached, cached: true })
 
   try {
-    const ids     = await riotGet<string[]>(riotUrl.matchIds(puuid, count))
-    const matches = await Promise.all(ids.map(id => riotGet<MatchSummary>(riotUrl.match(id))))
-    cacheSet(cacheKey, matches, 3 * 60 * 1000) // 3 min
-    return c.json({ data: matches, cached: false })
-  } catch (err) {
-    return c.json({ error: 'Error fetching matches', details: String(err) }, 500)
+    const ids = await riotGet<string[]>(riotUrl.matchIds(puuid, count))
+    const matches = await getMatchesByIds(ids)
+
+    cacheSet(cacheKey, matches, 3 * 60 * 1000)
+
+    return c.json({
+      data: matches,
+      cached: false,
+      requested: ids.length,
+      returned: matches.length,
+    })
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status || 500
+
+    console.error('Error fetching matches:', {
+      status,
+      puuid,
+      count,
+    })
+
+    return c.json(
+      {
+        error: 'Error fetching matches',
+        status,
+      },
+      status as 400
+    )
   }
 })
 
