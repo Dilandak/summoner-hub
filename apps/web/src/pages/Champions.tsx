@@ -25,7 +25,7 @@ type SelectedChampion = {
 }
 
 const MASTERY_COUNT = 40
-const CHAMPION_STATS_COUNT = 80
+const CHAMPION_STATS_COUNT = 30
 
 export function Champions() {
   const [sortMode, setSortMode] = useState<SortMode>('mastery')
@@ -37,10 +37,10 @@ export function Champions() {
 
   const { data: masteries, isLoading: masteryLoading } = useMastery(puuid, MASTERY_COUNT)
   const { data: championIndex, isLoading: championIndexLoading } = useChampionIndex()
-  const { data: championStats, isLoading: championStatsLoading } = useChampionStats(
-    puuid,
-    CHAMPION_STATS_COUNT
-  )
+  const { data: championStats, isFetching: championStatsFetching } = useChampionStats(
+  puuid,
+  CHAMPION_STATS_COUNT
+)
 
   const statsByChampion = useMemo(() => {
     const map = new Map<string, ChampionStat>()
@@ -98,11 +98,10 @@ export function Champions() {
       })
   }, [masteries, championIndex, statsByChampion, sortMode, queueFilter])
 
-  const isLoading =
-    summonerLoading ||
-    masteryLoading ||
-    championIndexLoading ||
-    championStatsLoading
+ const isLoading =
+  summonerLoading ||
+  masteryLoading ||
+  championIndexLoading
 
   if (isLoading) {
     return <LoadingRift message="Preparando champion pool..." />

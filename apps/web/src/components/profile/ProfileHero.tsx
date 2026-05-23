@@ -23,7 +23,7 @@ export function ProfileHero() {
 
   const { data: insights, isLoading: insightsLoading } = useProfileInsights(
     data?.account.puuid,
-    50,
+    10,
   );
 
   const recentMain = insights?.recentMain;

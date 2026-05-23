@@ -36,6 +36,8 @@ export function useRecentPlayers(puuid: string | undefined, count = 40) {
       return res.data.data
     },
     enabled: !!puuid,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    retry: 0,
+    refetchOnWindowFocus: false,
   })
 }

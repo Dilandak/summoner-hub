@@ -128,7 +128,7 @@ function toFrequentTeammate(acc: FrequentTeammateAccumulator): FrequentTeammate 
 app.get('/:puuid', async (c) => {
   const puuid = c.req.param('puuid')
   const countParam = Number(c.req.query('count') || 40)
-  const count = Math.min(Math.max(countParam, 10), 80)
+  const count = Math.min(Math.max(countParam, 10), 40)
 
   const cacheKey = `recent-players:${puuid}:${count}`
 

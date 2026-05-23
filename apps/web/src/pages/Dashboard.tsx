@@ -45,7 +45,7 @@ export function Dashboard() {
       </section>
 
       <section>
-        <RecentPlayersSection puuid={data.account.puuid} count={80} />
+        <RecentPlayersSection puuid={data.account.puuid} count={40} />
       </section>
     </div>
   )
