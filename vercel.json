@@ -4,11 +4,7 @@
   "outputDirectory": "apps/web/dist",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/apps/api/src/index.ts"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
