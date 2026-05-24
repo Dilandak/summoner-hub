@@ -25,7 +25,11 @@ export interface FrequentTeammatesResponse {
   lastUpdatedAt: string
 }
 
-export function useRecentPlayers(puuid: string | undefined, count = 40) {
+export function useRecentPlayers(
+  puuid: string | undefined,
+  count = 40,
+  enabled = true
+) {
   return useQuery({
     queryKey: ['recentPlayers', puuid, count],
     queryFn: async () => {
@@ -35,7 +39,7 @@ export function useRecentPlayers(puuid: string | undefined, count = 40) {
 
       return res.data.data
     },
-    enabled: !!puuid,
+    enabled: !!puuid && enabled,
     staleTime: 10 * 60 * 1000,
     retry: 0,
     refetchOnWindowFocus: false,

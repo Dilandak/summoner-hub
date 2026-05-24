@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ddragon } from '@/api/client'
 import { useRecentPlayers, type FrequentTeammate } from '@/hooks/useRecentPlayers'
 import { timeAgo } from '@/utils/lol'
@@ -9,9 +10,48 @@ interface Props {
 }
 
 export function RecentPlayersSection({ puuid, count = 40 }: Props) {
-  const { data, isLoading, error } = useRecentPlayers(puuid, count)
+  const [shouldAnalyze, setShouldAnalyze] = useState(false)
 
-  if (isLoading) {
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useRecentPlayers(puuid, count, shouldAnalyze)
+
+  if (!shouldAnalyze && !data) {
+    return (
+      <div className="rift-card p-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-rift-gold2">
+              Dúos y compañeros frecuentes
+            </h2>
+
+            <p className="font-mono text-sm text-rift-silver mt-2 max-w-2xl">
+              Analiza jugadores que más aparecieron en tu equipo dentro de tus últimas partidas.
+              Solo se mostrarán compañeros con 10 o más partidas juntos.
+            </p>
+
+            <p className="font-mono text-xs text-rift-gold/60 mt-3">
+              Este análisis puede tardar un poco porque consulta historial real desde Riot API.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShouldAnalyze(true)}
+            className="font-mono text-xs uppercase tracking-[0.25em] border border-rift-gold/40 text-rift-gold rounded-full px-6 py-3 bg-rift-dark/70 hover:bg-rift-gold/10 hover:border-rift-gold transition-all"
+          >
+            Analizar compañeros
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (isLoading || isFetching) {
     return <LoadingRift message="Analizando compañeros frecuentes..." />
   }
 
@@ -19,11 +59,20 @@ export function RecentPlayersSection({ puuid, count = 40 }: Props) {
     return (
       <div className="rift-card p-6 text-center">
         <h3 className="font-display text-xl font-bold text-red-400">
-          No se pudieron cargar los compañeros frecuentes
+          No se pudo completar el análisis de compañeros
         </h3>
+
         <p className="font-mono text-sm text-rift-silver mt-2">
-          Intenta actualizar los datos en unos segundos.
+          Riot tardó demasiado o limitó la consulta. Inténtalo de nuevo en unos segundos.
         </p>
+
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="mt-5 font-mono text-xs uppercase tracking-[0.25em] border border-rift-gold/40 text-rift-gold rounded-full px-6 py-3 bg-rift-dark/70 hover:bg-rift-gold/10 hover:border-rift-gold transition-all"
+        >
+          Reintentar análisis
+        </button>
       </div>
     )
   }
@@ -38,13 +87,17 @@ export function RecentPlayersSection({ puuid, count = 40 }: Props) {
             Dúos y compañeros frecuentes
           </h2>
           <p className="font-mono text-sm text-rift-silver mt-1">
-            Mis verdaderos amigos
+            Jugadores que más aparecieron en tu equipo dentro de tus últimas {data.analyzedMatches} partidas analizadas.
           </p>
         </div>
 
-        <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-rift-gold/60">
-          Ordenado por partidas juntos
-        </span>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="font-mono text-[11px] uppercase tracking-[0.22em] text-rift-gold/70 hover:text-rift-gold transition"
+        >
+          Actualizar análisis
+        </button>
       </div>
 
       <div className="rift-card p-5">
@@ -74,7 +127,7 @@ export function RecentPlayersSection({ puuid, count = 40 }: Props) {
           </div>
         ) : (
           <p className="font-mono text-sm text-rift-silver text-center py-8">
-            No se encontraron compañeros frecuentes en las partidas analizadas.
+            No se encontraron compañeros con 10 o más partidas juntos dentro del rango analizado.
           </p>
         )}
       </div>
@@ -87,7 +140,7 @@ function FrequentTeammateCard({
 }: {
   player: FrequentTeammate
 }) {
-  const isStrongDuo = player.games >= 3
+  const isStrongDuo = player.games >= 10
   const isGoodWinrate = player.winRate >= 55
 
   return (
